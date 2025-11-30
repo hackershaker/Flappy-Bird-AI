@@ -3,11 +3,11 @@ Q-러닝 학습 완료 후, 에이전트 플레이 및 시각화
 - pygame으로 화면 출력
 """
 
-import pygame
 import numpy as np
-from flappy_bird import FlappyBirdEnv
-from q_learning_agent import discretize_state
-from main import Q_table, state_bins  # 학습 완료 Q-테이블 불러오기
+from flappy_bird_env import FlappyBirdEnv
+from q_learning_agent import QLearningAgent
+
+"""
 
 try:
     Q_table = np.load("q_table.npy")
@@ -67,3 +67,43 @@ while not done:
 
 pygame.quit()
 print(f"게임 종료! 총 점수: {score}")
+
+"""
+
+
+class QLearningTestAgent(QLearningAgent):
+    def __init__(self, env, q_table_path="q_table.npy", bins=(10, 10, 10, 10)):
+        super().__init__(env, bins=bins)
+        # 학습된 Q-table 불러오기
+        self.q_table = np.load(q_table_path)
+        # epsilon=0: 무작위 행동 없음
+        self.epsilon = 0.0
+
+
+# ================================
+# 테스트 실행
+# ================================
+if __name__ == "__main__":
+    # 1. 환경 생성 (render=True)
+    env = FlappyBirdEnv(render=True)
+
+    # 2. 에이전트 생성 및 Q-table 로드
+    agent = QLearningTestAgent(env, q_table_path="best_q_table.npy")
+    agent.epsilon = 0.0
+
+    # 3. 초기 상태
+    state = env.reset()
+    done = False
+    total_reward = 0
+
+    # 4. 게임 루프
+    while not done:
+        action = agent.act(state)
+        next_state, reward, done = env.step(action)
+        state = next_state
+        total_reward += reward
+
+        # 렌더링
+        env.render()
+
+    print(f"Game Over! Total Reward: {total_reward}")
