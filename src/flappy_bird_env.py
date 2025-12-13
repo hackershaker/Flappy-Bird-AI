@@ -20,10 +20,17 @@ class FlappyBirdEnv:
         self.width = width
         self.height = height
         self.gravity = 1
-        self.jump_velocity = -5
+        self.jump_velocity = -10
         self.pipe_gap = 100
         self.render_enabled = render  # pygame 렌더링 시각화 할 건지 결정
-        self.reset()
+        state = self.reset()
+
+        self.state_dim = state.shape[0]  # 초기화 후 상태를 받아와 차원 할당
+        self.action_dim = 2  # 가만히 있기, 뛰기 2개의 행동 차원
+
+        print(
+            f"현재 환경 state dimension: {self.state_dim}, action dimension: {self.action_dim}"
+        )
 
     def reset(self):
         """게임 초기화 및 상태 반환"""
@@ -74,7 +81,9 @@ class FlappyBirdEnv:
 
     def get_state(self):
         """현재 상태 반환"""
-        return np.array([self.bird_y, self.bird_vel, self.pipe_x, self.pipe_y])
+        return np.array(
+            [self.bird_y, self.bird_vel, self.pipe_x, self.pipe_y], dtype=np.float32
+        ).flatten()
 
     def render(self):
         if not self.render_enabled:
